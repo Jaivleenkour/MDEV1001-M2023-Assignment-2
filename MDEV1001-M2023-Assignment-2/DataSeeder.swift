@@ -15,42 +15,60 @@ func seedData() {
         return
     }
     
-    guard let data = try? Data(contentsOf: url) else {
-        print("Failed to read JSON file.")
-        return
-    }
-    
-    guard let jsonArray = try? JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] else {
-        print("Failed to parse JSON.")
-        return
-    }
-    
-    guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-        print("AppDelegate not found.")
-        return
-    }
-    
-    let context = appDelegate.persistentContainer.viewContext
-    
-    for jsonObject in jsonArray {
-        let movie = Movie(context: context)
+    let session = URLSession.shared
+    let task = session.dataTask(with: url) { (data, response, error) in
+        if let error = error {
+            print("Error loading movies data: \(error)")
+            return
+        }
         
-       
-        movie.title = jsonObject["title"] as? String
-        movie.studio = jsonObject["studio"] as? String
-        movie.criticsrating = jsonObject["criticsRating"] as? Double ?? 0.0
-        movie.thumbnail = jsonObject["thumbnail"] as? String
+        guard let data = data else {
+            print("Error: No data received.")
+            return
+        }
         
-        // Save the context after each movie is created
         do {
-            try context.save()
+            let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
+            
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                print("AppDelegate not found.")
+                return
+            }
+            
+            let context = appDelegate.persistentContainer.viewContext
+            
+            for jsonObject in jsonArray ?? [] {
+                let movie = Movie(context: context)
+                
+                movie.title = jsonObject["title"] as? String
+                movie.studio = jsonObject["studio"] as? String
+                movie.criticsrating = jsonObject["criticsRating"] as? Double ?? 0.0
+                
+                if let imageUrlString = jsonObject["thumbnail"] as? String, let imageUrl = URL(string: imageUrlString) {
+                    if let imageData = try? Data(contentsOf: imageUrl) {
+                        movie.thumbnail = imageData
+                    } else {
+                        print("Failed to load image data for movie: \(movie.title ?? "")")
+                    }
+                }
+                
+                // Save the context after each movie is created
+                do {
+                    try context.save()
+                } catch {
+                    print("Failed to save movie: \(error)")
+                }
+            }
+            
+            print("Data seeded successfully.")
         } catch {
-            print("Failed to save movie: \(error)")
+            print("Failed to read JSON file: \(error)")
         }
     }
     
-    print("Data seeded successfully.")
+    task.resume()
 }
+
 func deleteAllData() {
     let persistentContainer = NSPersistentContainer(name: "MDEV1001_M2023_Assignment_2")
     persistentContainer.loadPersistentStores { _, error in

@@ -8,19 +8,22 @@
 import UIKit
 import CoreData
 
-class AddEditViewController: UIViewController
+class AddEditViewController: UIViewController, UIDocumentPickerDelegate
 {
     // UI References
     @IBOutlet weak var AddEditTitleLabel: UILabel!
     @IBOutlet weak var UpdateButton: UIButton!
     
     // Movie Fields
+    
+    @IBOutlet weak var thumbnailImage: UIImageView!
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var studioTextField: UITextField!
     @IBOutlet weak var criticsRatingTextField: UITextField!
     
     var movie: Movie?
     var dataViewController: DataViewController?
+    var selectedPosterImage: UIImage?
     
     override func viewDidLoad()
     {
@@ -31,15 +34,10 @@ class AddEditViewController: UIViewController
             // Editing existing movie
             titleTextField.text = movie.title
             studioTextField.text = movie.studio
-//            genresTextField.text = movie.genres
-//            directorsTextField.text = movie.directors
-//            writersTextField.text = movie.writers
-//            actorsTextField.text = movie.actors
-//            lengthTextField.text = "\(movie.length)"
-//            yearTextField.text = "\(movie.year)"
-//            descriptionTextView.text = movie.shortdescription
-//            mpaRatingTextField.text = movie.mparating
             criticsRatingTextField.text = "\(movie.criticsrating)"
+            if let imageData = movie.thumbnail, let image = UIImage(data: imageData) {
+                thumbnailImage.image = image
+                }
         }
         else
         {
@@ -63,6 +61,8 @@ class AddEditViewController: UIViewController
 
         // Retrieve the managed object context
         let context = appDelegate.persistentContainer.viewContext
+        dataViewController?.selectedPosterImage = selectedPosterImage
+        
 
         if let movie = movie
         {
@@ -70,14 +70,14 @@ class AddEditViewController: UIViewController
             movie.title = titleTextField.text
             movie.studio = studioTextField.text
             movie.criticsrating = Double(criticsRatingTextField.text ?? "") ?? 0.0
+            movie.thumbnail = selectedPosterImage?.jpegData(compressionQuality: 1.0)
         } else {
             // Creating a new movie
             let newMovie = Movie(context: context)
             newMovie.title = titleTextField.text
             newMovie.studio = studioTextField.text
-           // newMovie.genres = genresTextField.text
-
             newMovie.criticsrating = Double(criticsRatingTextField.text ?? "") ?? 0.0
+            newMovie.thumbnail = selectedPosterImage?.jpegData(compressionQuality: 1.0)
         }
 
         // Save the changes in the context
@@ -90,5 +90,32 @@ class AddEditViewController: UIViewController
             
         }
     }
+    @IBAction func uploadImageButton(_ sender: UIButton) {
+        let documentPicker = UIDocumentPickerViewController(documentTypes: ["public.image"], in: .import)
+        documentPicker.delegate = self
+        present(documentPicker, animated: true, completion: nil)
+
+    }
+    
+  
+    
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let selectedFileURL = urls.first else {
+            return
+        }
+        
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: selectedFileURL.path) {
+            if let imageData = fileManager.contents(atPath: selectedFileURL.path), let image = UIImage(data: imageData) {
+                thumbnailImage.image = image
+                selectedPosterImage = image
+            } else {
+                print("Failed to read image data from URL: \(selectedFileURL)")
+            }
+        } else {
+            print("Selected file does not exist at URL: \(selectedFileURL)")
+        }
+    }
+
     
 }

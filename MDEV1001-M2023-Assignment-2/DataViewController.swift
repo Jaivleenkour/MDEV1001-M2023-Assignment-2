@@ -13,6 +13,7 @@ class DataViewController: UIViewController , UITableViewDelegate, UITableViewDat
     @IBOutlet weak var tableView: UITableView!
     var movies: [Movie] = []
     var index = Int()
+    var selectedPosterImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,7 +68,16 @@ class DataViewController: UIViewController , UITableViewDelegate, UITableViewDat
                        cell.ratingLabel.backgroundColor = UIColor.red
                        cell.ratingLabel.textColor = UIColor.white
                    }
+            let imgData = movie.thumbnail != nil ? UIImage(data: movie.thumbnail!) : nil
+            cell.thumbnailImage?.image = imgData ?? selectedPosterImage
+
             
+         /*   // Set the poster image
+            let imageName = "Image\(indexPath.row + 1)"
+            if let image = UIImage(named: imageName) {
+                cell.thumbnailImage.image = image
+            }*/
+     /*
        //     print("type", movie.thumbnail ?? "nil")
             var type = movie.thumbnail ?? "no"
             if  type == "no" || type ==  "" {
@@ -75,7 +85,7 @@ class DataViewController: UIViewController , UITableViewDelegate, UITableViewDat
             else{
                     cell.thumbnailImage.image = UIImage(url: URL(string: type))
                 }
-            
+            */
            
            // cell.thumbnailImage.image = UIImage(url: URL(string: movie.thumbnail!))
            
