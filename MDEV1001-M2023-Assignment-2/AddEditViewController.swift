@@ -29,6 +29,9 @@ class AddEditViewController: UIViewController, UIDocumentPickerDelegate
     {
         super.viewDidLoad()
         
+        self.thumbnailImage.layer.borderColor = UIColor.black.cgColor
+        self.thumbnailImage.layer.borderWidth = 2
+        
         if let movie = movie
         {
             // Editing existing movie
