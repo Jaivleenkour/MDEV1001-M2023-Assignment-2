@@ -1,3 +1,4 @@
+
 import UIKit
 import CoreData
 
@@ -7,7 +8,7 @@ class AddEditViewController: UIViewController, UIDocumentPickerDelegate
     @IBOutlet weak var AddEditTitleLabel: UILabel!
     @IBOutlet weak var UpdateButton: UIButton!
     
-    // Movie Fields
+    // Movie Field
     
     @IBOutlet weak var thumbnailImage: UIImageView!
     @IBOutlet weak var titleTextField: UITextField!
@@ -27,7 +28,7 @@ class AddEditViewController: UIViewController, UIDocumentPickerDelegate
         
         if let movie = movie
         {
-            // Editing existing movie
+            // Edit existing movie
             titleTextField.text = movie.title
             studioTextField.text = movie.studio
             criticsRatingTextField.text = "\(movie.criticsrating)"
@@ -62,13 +63,13 @@ class AddEditViewController: UIViewController, UIDocumentPickerDelegate
 
         if let movie = movie
         {
-            // Editing existing movie
+            // Edit existing movie
             movie.title = titleTextField.text
             movie.studio = studioTextField.text
             movie.criticsrating = Double(criticsRatingTextField.text ?? "") ?? 0.0
             movie.thumbnail = selectedPosterImage?.jpegData(compressionQuality: 1.0)
         } else {
-            // Creating a new movie
+            // Create a new movie
             let newMovie = Movie(context: context)
             newMovie.title = titleTextField.text
             newMovie.studio = studioTextField.text
@@ -93,8 +94,6 @@ class AddEditViewController: UIViewController, UIDocumentPickerDelegate
 
     }
     
-  
-    
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let selectedFileURL = urls.first else {
             return
@@ -112,6 +111,4 @@ class AddEditViewController: UIViewController, UIDocumentPickerDelegate
             print("Selected file does not exist at URL: \(selectedFileURL)")
         }
     }
-
-    
 }
