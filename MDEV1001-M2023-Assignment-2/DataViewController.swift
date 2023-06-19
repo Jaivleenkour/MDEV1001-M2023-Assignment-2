@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  MDEV1001-M2023-ICE4
-//
-//  Created by Jaivleen Kour on 2023-06-03.
-//
-
 import UIKit
 import CoreData
 
@@ -111,11 +104,11 @@ class DataViewController: UIViewController , UITableViewDelegate, UITableViewDat
                 addEditVC.dataViewController = self
                 if let indexPath = sender as? IndexPath
                 {
-                   // Editing existing movie
+                   // Edit existing movie
                    let movie = movies[indexPath.row]
                    addEditVC.movie = movie
                 } else {
-                    // Adding new movie
+                    // Add new movie
                     addEditVC.movie = nil
                 }
             }
